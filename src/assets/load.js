@@ -2,24 +2,20 @@
 // from https://threejsfundamentals.org/threejs/threejs-load-obj-materials-windmill2.html
 
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js";
-import * as Three1 from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
 import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js";
 import { OBJLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/MTLLoader.js";
 
-
+import PickHelper from "./pickHelper";
+import { cameraConst } from "./constants";
 
 export default function load({ textureURL, mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGLRenderer({ canvas });
 
-  const fov = 45;
-  const aspect = 2; // the canvas default
-  const near = 0.1;
-  const far = 100;
+  const { fov, aspect, near, far } = cameraConst;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 10, 20);
-  const infoElem = document.querySelector('#info');
 
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 5, 0);
@@ -28,12 +24,20 @@ export default function load({ textureURL, mtlURL, objURL }) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("black");
 
+  const pickPosition = { x: 0, y: 0 };
+  const objects = [];
+
   {
-    if (Array.isArray(textureURL))
-      textureURL.forEach((url) => loadTexture(url));
-    else loadTexture(textureURL);
+    loadHemisphereLight();
+    loadDirectionalLight();
+    renderObject();
+    renderCube();
+    clearPickPosition();
+    requestAnimationFrame(render);
+    addEventListeners();
   }
-  {
+
+  function loadHemisphereLight() {
     const skyColor = 0xb1e1ff; // light blue
     const groundColor = 0xb97a20; // brownish orange
     const intensity = 1;
@@ -52,34 +56,34 @@ export default function load({ textureURL, mtlURL, objURL }) {
     return `hsl(${rand(360) | 0}, ${rand(50, 100) | 0}%, 50%)`;
   }
 
-  {
-      const boxWidth = 1;
+  function renderCube() {
+    const boxWidth = 1;
     const boxHeight = 1;
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+    const objects = [];
 
-    const numObjects1 = 1;
+    const numObjects1 = 10;
     for (let i = 0; i < numObjects1; ++i) {
       const material1 = new THREE.MeshPhongMaterial({
         color: randomColor(),
       });
 
-      var objects = [];
-      for(i=0; i<1; i++){
-          const cube1 = new THREE.Mesh(geometry, material1);
-          scene.add(cube1); // or group.add(meshobj);
-          objects.push(cube1);
-          cube1.position.set(rand(-20, 20), rand(-20, 20), rand(-20, 20));
-          cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-          cube1.scale.set(2000, 2000, 2000);
-          //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6)); 
+      for (i = 0; i < numObjects1; i++) {
+        const cube1 = new THREE.Mesh(geometry, material1);
+        scene.add(cube1); // or group.add(meshobj);
+        objects.push(cube1);
+        cube1.position.set(rand(-2, 2), rand(-2, 2), rand(-2, 2));
+        cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+        cube1.scale.set(2000, 2000, 2000);
+        //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
+      }
     }
-    }
+    const pickHelper = new PickHelper(objects);
+    pickHelper.pick(pickPosition, scene, camera);
   }
 
-
-
-  {
+  function loadDirectionalLight() {
     const color = 0xffffff;
     const intensity = 1;
     const light = new THREE.DirectionalLight(color, intensity);
@@ -114,7 +118,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
     camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
   }
 
-  {
+  function renderObject() {
     const mtlLoader = new MTLLoader();
     mtlLoader.load(mtlURL, (mtl) => {
       mtl.preload();
@@ -138,6 +142,11 @@ export default function load({ textureURL, mtlURL, objURL }) {
         controls.maxDistance = boxSize * 10;
         controls.target.copy(boxCenter);
         controls.update();
+
+        // load textures
+        Array.isArray(textureURL)
+          ? textureURL.forEach((url) => loadTexture(url))
+          : loadTexture(textureURL);
       });
     });
   }
@@ -172,50 +181,8 @@ export default function load({ textureURL, mtlURL, objURL }) {
     return needResize;
   }
 
-
-   class PickHelper {
-    constructor() {
-      this.raycaster = new THREE.Raycaster();
-      this.pickedObject = null;
-      this.pickedObjectSavedColor = 0;
-    }
-    pick(normalizedPosition, scene, camera, time) {
-      // restore the color if there is a picked object
-      if (this.pickedObject) {
-        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-        this.pickedObject = undefined;
-      }
-
-      // cast a ray through the frustum
-      this.raycaster.setFromCamera(normalizedPosition, camera);
-      // get the list of objects the ray intersected
-      const intersectedObjects = this.raycaster.intersectObjects(objects);
-      if (intersectedObjects.length) {
-        // pick the first object. It's the closest one
-        const intersection = intersectedObjects[0];
-        
-        infoElem.textContent = `distance : ${intersection.distance.toFixed(2)}
-z depth  : ${((intersection.distance - near) / (far - near)).toFixed(3)}
-local pos: ${intersection.point.x.toFixed(2)}, ${intersection.point.y.toFixed(2)}, ${intersection.point.z.toFixed(2)}
-local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
-        this.pickedObject = intersection.object;
-        // save its color
-        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-        // set its emissive color to flashing red/yellow
-        this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
-      }
-    }
-  }
-
-  const pickPosition = {x: 0, y: 0};
-  const pickHelper = new PickHelper();
-  clearPickPosition();
-
-
-
-
   function render(time) {
-    time *= 0.01;  // convert to seconds;
+    time *= 0.01; // convert to seconds;
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -224,15 +191,8 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
 
     renderer.render(scene, camera);
 
-    pickHelper.pick(pickPosition, scene, camera, time);
-
-    renderer.render(scene, camera);
-
     requestAnimationFrame(render);
   }
-
-  requestAnimationFrame(render);
-
 
   function getCanvasRelativePosition(event) {
     const rect = canvas.getBoundingClientRect();
@@ -244,8 +204,8 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
 
   function setPickPosition(event) {
     const pos = getCanvasRelativePosition(event);
-    pickPosition.x = (pos.x / canvas.clientWidth ) *  2 - 1;
-    pickPosition.y = (pos.y / canvas.clientHeight) * -2 + 1;  // note we flip Y
+    pickPosition.x = (pos.x / canvas.clientWidth) * 2 - 1;
+    pickPosition.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
   }
 
   function clearPickPosition() {
@@ -256,20 +216,26 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
     pickPosition.x = -100000;
     pickPosition.y = -100000;
   }
-  window.addEventListener('mousemove', setPickPosition);
-  window.addEventListener('mouseout', clearPickPosition);
-  window.addEventListener('mouseleave', clearPickPosition);
 
-  window.addEventListener('touchstart', (event) => {
-    // prevent the window from scrolling
-    event.preventDefault();
-    setPickPosition(event.touches[0]);
-  }, {passive: false});
+  function addEventListeners() {
+    window.addEventListener("mousemove", setPickPosition);
+    window.addEventListener("mouseout", clearPickPosition);
+    window.addEventListener("mouseleave", clearPickPosition);
 
-  window.addEventListener('touchmove', (event) => {
-    setPickPosition(event.touches[0]);
-  });
+    window.addEventListener(
+      "touchstart",
+      (event) => {
+        // prevent the window from scrolling
+        event.preventDefault();
+        setPickPosition(event.touches[0]);
+      },
+      { passive: false }
+    );
 
-  window.addEventListener('touchend', clearPickPosition);  
-  
+    window.addEventListener("touchmove", (event) => {
+      setPickPosition(event.touches[0]);
+    });
+
+    window.addEventListener("touchend", clearPickPosition);
+  }
 }

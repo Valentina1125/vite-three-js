@@ -1,11 +1,11 @@
-const objectURLs = {
+export const objectURLs = {
   brazo: {
     textureURL: "brazo/brazo.jpg",
     mtlURL: "brazo/brazo.mtl",
     objURL: "brazo/brazo.obj",
   },
   craneo: {
-    textureURL: ["craneo/craneoinf01.jpg","craneo/craneoinf02.jpg"],
+    textureURL: ["craneo/craneoinf01.jpg", "craneo/craneoinf02.jpg"],
     mtlURL: "craneo/craneoinf.mtl",
     objURL: "craneo/craneoinf.obj",
   },
@@ -15,4 +15,10 @@ const objectURLs = {
     objURL: "orofaringe/Orofaringe.obj",
   },
 };
-export default objectURLs;
+
+export const cameraConst = {
+  fov: 45,
+  aspect: 2,
+  near: 0.1,
+  far: 100,
+};
