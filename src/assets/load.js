@@ -2,16 +2,15 @@
 // from https://threejsfundamentals.org/threejs/threejs-load-obj-materials-windmill2.html
 
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js";
-import * as Three1 from 'https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js';
+import * as Three1 from "https://threejsfundamentals.org/threejs/resources/threejs/r110/build/three.module.js";
 import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js";
 import { OBJLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/MTLLoader.js";
 
-
-
 export default function load({ textureURL, mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGLRenderer({ canvas });
+  let objects = [];
 
   const fov = 45;
   const aspect = 2; // the canvas default
@@ -19,7 +18,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
   const far = 100;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 10, 20);
-  const infoElem = document.querySelector('#info');
+  const infoElem = document.querySelector("#info");
 
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 5, 0);
@@ -29,16 +28,37 @@ export default function load({ textureURL, mtlURL, objURL }) {
   scene.background = new THREE.Color("black");
 
   {
+    const mtlLoader = new MTLLoader();
+    mtlLoader.load(mtlURL, (mtl) => {
+      mtl.preload();
+      const objLoader = new OBJLoader();
+      objLoader.setMaterials(mtl);
+      objLoader.load(objURL, (root) => {
+        scene.add(root);
+
+        // compute the box that contains all the stuff
+        // from root and below
+
+        const box = new THREE.Box3().setFromObject(root);
+
+        const boxSize = box.getSize(new THREE.Vector3()).length();
+        const boxCenter = box.getCenter(new THREE.Vector3());
+
+        // set the camera to frame the box
+        frameArea(boxSize * 1.2, boxSize, boxCenter, camera);
+
+        // update the Trackball controls to handle the new size
+        controls.maxDistance = boxSize * 10;
+        controls.target.copy(boxCenter);
+        controls.update();
+      });
+    });
+  }
+
+  {
     if (Array.isArray(textureURL))
       textureURL.forEach((url) => loadTexture(url));
     else loadTexture(textureURL);
-  }
-  {
-    const skyColor = 0xb1e1ff; // light blue
-    const groundColor = 0xb97a20; // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    scene.add(light);
   }
 
   function rand(min, max) {
@@ -53,7 +73,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
   }
 
   {
-      const boxWidth = 1;
+    const boxWidth = 1;
     const boxHeight = 1;
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
@@ -64,20 +84,33 @@ export default function load({ textureURL, mtlURL, objURL }) {
         color: randomColor(),
       });
 
-      var objects = [];
-      for(i=0; i<1; i++){
-          const cube1 = new THREE.Mesh(geometry, material1);
-          scene.add(cube1); // or group.add(meshobj);
-          objects.push(cube1);
-          cube1.position.set(rand(-20, 20), rand(-20, 20), rand(-20, 20));
-          cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-          cube1.scale.set(2000, 2000, 2000);
-          //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6)); 
-    }
+      for (i = 0; i < numObjects1; i++) {
+        const cube1 = new THREE.Mesh(geometry, material1);
+        cube1.rotation.x = Math.PI;
+        cube1.position.set(
+          -2.8218419551849365,
+          -4.300922989845276,
+          2625.3948974609375
+        );
+        cube1.scale.set(3000, 3000, 3000);
+        scene.add(cube1); // or group.add(meshobj);
+        objects.push(cube1);
+
+        //cube1.position.set(rand(-2000, 2000), rand(-2000, 2000), rand(-2000, 2000));
+        //cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+
+        //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
+      }
     }
   }
 
-
+  {
+    const skyColor = 0xb1e1ff; // light blue
+    const groundColor = 0xb97a20; // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
 
   {
     const color = 0xffffff;
@@ -114,33 +147,6 @@ export default function load({ textureURL, mtlURL, objURL }) {
     camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
   }
 
-  {
-    const mtlLoader = new MTLLoader();
-    mtlLoader.load(mtlURL, (mtl) => {
-      mtl.preload();
-      const objLoader = new OBJLoader();
-      objLoader.setMaterials(mtl);
-      objLoader.load(objURL, (root) => {
-        scene.add(root);
-
-        // compute the box that contains all the stuff
-        // from root and below
-
-        const box = new THREE.Box3().setFromObject(root);
-
-        const boxSize = box.getSize(new THREE.Vector3()).length();
-        const boxCenter = box.getCenter(new THREE.Vector3());
-
-        // set the camera to frame the box
-        frameArea(boxSize * 1.2, boxSize, boxCenter, camera);
-
-        // update the Trackball controls to handle the new size
-        controls.maxDistance = boxSize * 10;
-        controls.target.copy(boxCenter);
-        controls.update();
-      });
-    });
-  }
   function loadTexture(url) {
     const planeSize = 4000;
     const loader = new THREE.TextureLoader();
@@ -158,7 +164,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
     });
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -0.5;
-    scene.add(mesh);
+    //scene.add(mesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -172,8 +178,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
     return needResize;
   }
 
-
-   class PickHelper {
+  class PickHelper {
     constructor() {
       this.raycaster = new THREE.Raycaster();
       this.pickedObject = null;
@@ -193,29 +198,31 @@ export default function load({ textureURL, mtlURL, objURL }) {
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         const intersection = intersectedObjects[0];
-        
+
         infoElem.textContent = `distance : ${intersection.distance.toFixed(2)}
 z depth  : ${((intersection.distance - near) / (far - near)).toFixed(3)}
-local pos: ${intersection.point.x.toFixed(2)}, ${intersection.point.y.toFixed(2)}, ${intersection.point.z.toFixed(2)}
+local pos: ${intersection.point.x.toFixed(2)}, ${intersection.point.y.toFixed(
+          2
+        )}, ${intersection.point.z.toFixed(2)}
 local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
         this.pickedObject = intersection.object;
         // save its color
-        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+        this.pickedObjectSavedColor =
+          this.pickedObject.material.emissive.getHex();
         // set its emissive color to flashing red/yellow
-        this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+        this.pickedObject.material.emissive.setHex(
+          (time * 8) % 2 > 1 ? 0xffff00 : 0xff0000
+        );
       }
     }
   }
 
-  const pickPosition = {x: 0, y: 0};
+  const pickPosition = { x: 0, y: 0 };
   const pickHelper = new PickHelper();
   clearPickPosition();
 
-
-
-
   function render(time) {
-    time *= 0.01;  // convert to seconds;
+    time *= 0.01; // convert to seconds;
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -233,7 +240,6 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
 
   requestAnimationFrame(render);
 
-
   function getCanvasRelativePosition(event) {
     const rect = canvas.getBoundingClientRect();
     return {
@@ -244,8 +250,8 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
 
   function setPickPosition(event) {
     const pos = getCanvasRelativePosition(event);
-    pickPosition.x = (pos.x / canvas.clientWidth ) *  2 - 1;
-    pickPosition.y = (pos.y / canvas.clientHeight) * -2 + 1;  // note we flip Y
+    pickPosition.x = (pos.x / canvas.clientWidth) * 2 - 1;
+    pickPosition.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
   }
 
   function clearPickPosition() {
@@ -256,20 +262,23 @@ local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
     pickPosition.x = -100000;
     pickPosition.y = -100000;
   }
-  window.addEventListener('mousemove', setPickPosition);
-  window.addEventListener('mouseout', clearPickPosition);
-  window.addEventListener('mouseleave', clearPickPosition);
+  window.addEventListener("mousemove", setPickPosition);
+  window.addEventListener("mouseout", clearPickPosition);
+  window.addEventListener("mouseleave", clearPickPosition);
 
-  window.addEventListener('touchstart', (event) => {
-    // prevent the window from scrolling
-    event.preventDefault();
-    setPickPosition(event.touches[0]);
-  }, {passive: false});
+  window.addEventListener(
+    "touchstart",
+    (event) => {
+      // prevent the window from scrolling
+      event.preventDefault();
+      setPickPosition(event.touches[0]);
+    },
+    { passive: false }
+  );
 
-  window.addEventListener('touchmove', (event) => {
+  window.addEventListener("touchmove", (event) => {
     setPickPosition(event.touches[0]);
   });
 
-  window.addEventListener('touchend', clearPickPosition);  
-  
+  window.addEventListener("touchend", clearPickPosition);
 }
