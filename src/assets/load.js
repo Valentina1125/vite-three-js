@@ -135,7 +135,7 @@ export default function load({ mtlURL, objURL }) {
     });
   }
   function loadPlane() {
-    const planeSize = 4000;
+    const planeSize = 200;
     const loader = new THREE.TextureLoader();
     const texture = loader.load(
       "https://threejsfundamentals.org/threejs/resources/images/checker.png"
