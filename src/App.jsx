@@ -7,6 +7,7 @@ function App() {
   return (
     <div className="App">
         <canvas id="canvas"></canvas>
+        <pre id="info"></pre>
     </div>
   );
 }
