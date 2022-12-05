@@ -26,6 +26,10 @@ export default function load({ mtlURL, objURL }) {
   scene.background = new THREE.Color("black");
 
   const pickPosition = { x: 0, y: 0 };
+  const pickHelper = new PickHelper();
+  clearPickPosition();
+  const objects = [];
+  
 
   {
     loadPlane();
@@ -33,9 +37,7 @@ export default function load({ mtlURL, objURL }) {
     loadDirectionalLight();
     renderObject();
     renderCube();
-    clearPickPosition();
     requestAnimationFrame(render);
-    addEventListeners();
   }
 
   function loadHemisphereLight() {
@@ -51,25 +53,21 @@ export default function load({ mtlURL, objURL }) {
     const boxHeight = 1;
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-    const objects = [];
 
     const numObjects1 = 1;
     for (let i = 0; i < numObjects1; ++i) {
-      const material1 = new THREE.MeshPhongMaterial({
+      const material = new THREE.MeshPhongMaterial({
         color: randomColor(),
       });
 
-      const cube1 = new THREE.Mesh(geometry, material1);
-      debugger;
-      scene.add(cube1); // or group.add(meshobj);
-      objects.push(cube1);
-      cube1.position.set(4, -2, 1);
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube); // or group.add(meshobj);
+      objects.push(cube);
+      cube.position.set(4, -2, 1);
       //cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-      cube1.scale.set(2, 2, 2);
+      cube.scale.set(2, 2, 2);
       //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
     }
-    const pickHelper = new PickHelper(objects);
-    pickHelper.pick(pickPosition, scene, camera);
   }
 
   function loadDirectionalLight() {
@@ -178,6 +176,7 @@ export default function load({ mtlURL, objURL }) {
       camera.updateProjectionMatrix();
     }
 
+    pickHelper.pick({pickPosition, scene, camera,time, objects});
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
@@ -206,25 +205,23 @@ export default function load({ mtlURL, objURL }) {
     pickPosition.y = -100000;
   }
 
-  function addEventListeners() {
-    window.addEventListener("mousemove", setPickPosition);
-    window.addEventListener("mouseout", clearPickPosition);
-    window.addEventListener("mouseleave", clearPickPosition);
+  window.addEventListener("mousemove", setPickPosition);
+  window.addEventListener("mouseout", clearPickPosition);
+  window.addEventListener("mouseleave", clearPickPosition);
 
-    window.addEventListener(
-      "touchstart",
-      (event) => {
-        // prevent the window from scrolling
-        event.preventDefault();
-        setPickPosition(event.touches[0]);
-      },
-      { passive: false }
-    );
-
-    window.addEventListener("touchmove", (event) => {
+  window.addEventListener(
+    "touchstart",
+    (event) => {
+      // prevent the window from scrolling
+      event.preventDefault();
       setPickPosition(event.touches[0]);
-    });
+    },
+    { passive: false }
+  );
 
-    window.addEventListener("touchend", clearPickPosition);
-  }
+  window.addEventListener("touchmove", (event) => {
+    setPickPosition(event.touches[0]);
+  });
+
+  window.addEventListener("touchend", clearPickPosition);
 }

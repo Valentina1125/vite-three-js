@@ -5,14 +5,13 @@ import { cameraConst } from "./constants";
 const { near, far } = cameraConst;
 
 class PickHelper {
-  constructor(objects) {
+  constructor() {
     this.raycaster = new THREE.Raycaster();
     this.pickedObject = null;
     this.pickedObjectSavedColor = 0;
-    this.objects = objects;
     this.infoElem = document.querySelector("#info");
   }
-  pick(normalizedPosition, scene, camera, time) {
+  pick({pickPosition, scene, camera, time, objects}) {
     // restore the color if there is a picked object
     if (this.pickedObject) {
       this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
@@ -20,9 +19,9 @@ class PickHelper {
     }
 
     // cast a ray through the frustum
-    this.raycaster.setFromCamera(normalizedPosition, camera);
+    this.raycaster.setFromCamera(pickPosition, camera);
     // get the list of objects the ray intersected
-    const intersectedObjects = this.raycaster.intersectObjects(this.objects);
+    const intersectedObjects = this.raycaster.intersectObjects(objects);
     if (intersectedObjects.length) {
       // pick the first object. It's the closest one
       const intersection = intersectedObjects[0];
