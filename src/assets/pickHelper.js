@@ -11,7 +11,7 @@ class PickHelper {
     this.pickedObjectSavedColor = 0;
     this.infoElem = document.querySelector("#info");
   }
-  pick({pickPosition, scene, camera, time, objects}) {
+  pick({ pickPosition, scene, camera, time, objects, objects1, objects2, objects3, objects4, objects5, objects6}) {
     // restore the color if there is a picked object
     if (this.pickedObject) {
       this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
@@ -22,26 +22,66 @@ class PickHelper {
     this.raycaster.setFromCamera(pickPosition, camera);
     // get the list of objects the ray intersected
     const intersectedObjects = this.raycaster.intersectObjects(objects);
+    const intersectedObjects1 = this.raycaster.intersectObjects(objects1);
+    const intersectedObjects2 = this.raycaster.intersectObjects(objects2);
+    const intersectedObjects3 = this.raycaster.intersectObjects(objects3);
+    const intersectedObjects4 = this.raycaster.intersectObjects(objects4);
+    const intersectedObjects5 = this.raycaster.intersectObjects(objects5);
+    const intersectedObjects6 = this.raycaster.intersectObjects(objects6);
+
     if (intersectedObjects.length) {
       // pick the first object. It's the closest one
       const intersection = intersectedObjects[0];
-
       this.infoElem.textContent = `
-distance : ${intersection.distance.toFixed(2)}
-z depth  : ${((intersection.distance - near) / (far - near)).toFixed(3)}
-local pos: ${intersection.point.x.toFixed(2)}, ${intersection.point.y.toFixed(
-        2
-      )}, ${intersection.point.z.toFixed(2)}
-local uv : ${intersection.uv.x.toFixed(2)}, ${intersection.uv.y.toFixed(2)}`;
-      this.pickedObject = intersection.object;
-      // save its color
-      this.pickedObjectSavedColor =
-        this.pickedObject.material.emissive.getHex();
-      // set its emissive color to flashing red/yellow
-      this.pickedObject.material.emissive.setHex(
-        (time * 8) % 2 > 1 ? 0xffff00 : 0xff0000
-      );
+Hueso Frontal`;
     }
+
+
+    if (intersectedObjects1.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects1[0];
+      this.infoElem.textContent = `
+Hueso Nasal`;
+    }
+
+
+    if (intersectedObjects2.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects2[0];
+      this.infoElem.textContent = `
+Mandíbula`;
+    }
+
+    if (intersectedObjects3.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects3[0];
+      this.infoElem.textContent = `
+Hueso Cigomático`;
+    }
+
+    if (intersectedObjects4.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects4[0];
+      this.infoElem.textContent = `
+Hueso Occipital`;
+    }
+
+    if (intersectedObjects5.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects5[0];
+      this.infoElem.textContent = `
+Hueso Temporal`;
+    }
+
+
+    if (intersectedObjects6.length) {
+      // pick the first object. It's the closest one
+      const intersection = intersectedObjects6[0];
+      this.infoElem.textContent = `
+Hueso Parietal`;
+    }
+
+
   }
 }
 

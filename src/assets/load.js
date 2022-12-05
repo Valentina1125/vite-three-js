@@ -29,6 +29,12 @@ export default function load({ mtlURL, objURL }) {
   const pickHelper = new PickHelper();
   clearPickPosition();
   const objects = [];
+  const objects1 = [];
+  const objects2 = [];
+  const objects3 = [];
+  const objects4 = [];
+  const objects5 = [];
+  const objects6 = [];
   
 
   {
@@ -54,20 +60,56 @@ export default function load({ mtlURL, objURL }) {
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-    const numObjects1 = 1;
-    for (let i = 0; i < numObjects1; ++i) {
-      const material = new THREE.MeshPhongMaterial({
-        color: randomColor(),
-      });
 
-      const cube = new THREE.Mesh(geometry, material);
-      scene.add(cube); // or group.add(meshobj);
-      objects.push(cube);
-      cube.position.set(4, -2, 1);
-      //cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-      cube.scale.set(2, 2, 2);
-      //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
-    }
+    const material = new THREE.MeshPhongMaterial({
+      
+      color: 'hsl(126, 63%, 50%)',
+      
+    });
+
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube); // or group.add(meshobj);
+    objects.push(cube);
+    cube.position.set(0, -9, 25);
+    cube.scale.set(2, 2, 2);
+
+   
+    const cube1 = new THREE.Mesh(geometry, material);
+    scene.add(cube1); // or group.add(meshobj);
+    objects1.push(cube1);
+    cube1.position.set(0, -13.5, 16);
+    cube1.scale.set(2, 2, 2);
+
+    const cube2 = new THREE.Mesh(geometry, material);
+    scene.add(cube2); // or group.add(meshobj);
+    objects2.push(cube2);
+    cube2.position.set(0, -15, 2);
+    cube2.scale.set(2, 2, 2);
+
+    const cube3 = new THREE.Mesh(geometry, material);
+    scene.add(cube3); // or group.add(meshobj);
+    objects3.push(cube3);
+    cube3.position.set(-8, -9, 11);
+    cube3.scale.set(2, 2, 2);
+    
+    const cube4 = new THREE.Mesh(geometry, material);
+    scene.add(cube4); // or group.add(meshobj);
+    objects4.push(cube4);
+    cube4.position.set(0, 13.5, 10);
+    cube4.scale.set(2, 2, 2);
+
+    const cube5 = new THREE.Mesh(geometry, material);
+    scene.add(cube5); // or group.add(meshobj);
+    objects5.push(cube5);
+    cube5.position.set(9, 1, 13);
+    cube5.scale.set(2, 2, 2);
+
+    const cube6 = new THREE.Mesh(geometry, material);
+    scene.add(cube6); // or group.add(meshobj);
+    objects6.push(cube6);
+    cube6.position.set(8.5, 8, 17);
+    cube6.scale.set(2, 2, 2);
+    
   }
 
   function loadDirectionalLight() {
@@ -154,7 +196,7 @@ export default function load({ mtlURL, objURL }) {
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
     // planeMesh.rotation.x = Math.PI * -0.5;
 
-    scene.add(planeMesh);
+    //scene.add(planeMesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -176,7 +218,7 @@ export default function load({ mtlURL, objURL }) {
       camera.updateProjectionMatrix();
     }
 
-    pickHelper.pick({pickPosition, scene, camera,time, objects});
+    pickHelper.pick({pickPosition, scene, camera,time, objects, objects1, objects2, objects3, objects4, objects5, objects6} );
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
