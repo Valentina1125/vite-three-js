@@ -68,15 +68,13 @@ export default function load({ textureURL, mtlURL, objURL }) {
         color: randomColor(),
       });
 
-      for (i = 0; i < numObjects1; i++) {
-        const cube1 = new THREE.Mesh(geometry, material1);
-        scene.add(cube1); // or group.add(meshobj);
-        objects.push(cube1);
-        cube1.position.set(rand(-2, 2), rand(-2, 2), rand(-2, 2));
-        cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-        cube1.scale.set(2000, 2000, 2000);
-        //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
-      }
+      const cube1 = new THREE.Mesh(geometry, material1);
+      scene.add(cube1); // or group.add(meshobj);
+      objects.push(cube1);
+      cube1.position.set(rand(-2, 2), rand(-2, 2), rand(-2, 2));
+      cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+      cube1.scale.set(2000, 2000, 2000);
+      //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
     }
     const pickHelper = new PickHelper(objects);
     pickHelper.pick(pickPosition, scene, camera);
