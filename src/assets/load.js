@@ -12,7 +12,6 @@ import { cameraConst } from "./constants";
 export default function load({ textureURL, mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGLRenderer({ canvas });
-  let objects = [];
 
   const { fov, aspect, near, far } = cameraConst;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
@@ -26,7 +25,6 @@ export default function load({ textureURL, mtlURL, objURL }) {
   scene.background = new THREE.Color("black");
 
   const pickPosition = { x: 0, y: 0 };
-  const objects = [];
 
   {
     loadHemisphereLight();
