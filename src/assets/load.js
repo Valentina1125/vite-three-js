@@ -12,6 +12,7 @@ import { cameraConst } from "./constants";
 export default function load({ textureURL, mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGLRenderer({ canvas });
+  let objects = [];
 
   const { fov, aspect, near, far } = cameraConst;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
@@ -167,7 +168,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
     });
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -0.5;
-    scene.add(mesh);
+    //scene.add(mesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
