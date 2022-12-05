@@ -8,6 +8,7 @@ import { MTLLoader } from "https://threejsfundamentals.org/threejs/resources/thr
 
 import PickHelper from "./pickHelper";
 import { cameraConst } from "./constants";
+import { rand, randomColor } from "./random";
 
 export default function load({ textureURL, mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
@@ -42,17 +43,6 @@ export default function load({ textureURL, mtlURL, objURL }) {
     const intensity = 1;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
-  }
-
-  function rand(min, max) {
-    if (max === undefined) {
-      max = min;
-      min = 0;
-    }
-    return min + (max - min) * Math.random();
-  }
-  function randomColor() {
-    return `hsl(${rand(360) | 0}, ${rand(50, 100) | 0}%, 50%)`;
   }
 
   function renderCube() {
