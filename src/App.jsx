@@ -3,7 +3,7 @@ import load from "./assets/load";
 import { objectURLs } from "./assets/constants";
 
 function App() {
-  useEffect(() => load(objectURLs.brazo), []);
+  useEffect(() => load(objectURLs.skull), []);
   return (
     <div className="App">
         <canvas id="canvas"></canvas>

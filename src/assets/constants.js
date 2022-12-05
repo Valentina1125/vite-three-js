@@ -14,6 +14,11 @@ export const objectURLs = {
     mtlURL: "orofaringe/Orofaringe.mtl",
     objURL: "orofaringe/Orofaringe.obj",
   },
+  skull: {
+    textureURL: "skull/skull.jpg",
+    mtlURL: "skull/skull.mtl",
+    objURL: "skull/skull.obj",
+  },
 };
 
 export const cameraConst = {

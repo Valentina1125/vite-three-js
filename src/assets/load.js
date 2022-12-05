@@ -53,7 +53,7 @@ export default function load({ mtlURL, objURL }) {
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
     const objects = [];
 
-    const numObjects1 = 10;
+    const numObjects1 = 1;
     for (let i = 0; i < numObjects1; ++i) {
       const material1 = new THREE.MeshPhongMaterial({
         color: randomColor(),
@@ -62,9 +62,9 @@ export default function load({ mtlURL, objURL }) {
       const cube1 = new THREE.Mesh(geometry, material1);
       scene.add(cube1); // or group.add(meshobj);
       objects.push(cube1);
-      cube1.position.set(rand(-2, 2), rand(-2, 2), rand(-2, 2));
-      cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-      cube1.scale.set(2000, 2000, 2000);
+      cube1.position.set(4, -2, 1);
+      //cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+      cube1.scale.set(20, 20, 20);
       //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
     }
     const pickHelper = new PickHelper(objects);
@@ -155,7 +155,7 @@ export default function load({ mtlURL, objURL }) {
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
     planeMesh.rotation.x = Math.PI * -0.5;
 
-    scene.add(planeMesh);
+    //scene.add(planeMesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
