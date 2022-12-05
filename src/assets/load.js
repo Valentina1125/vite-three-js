@@ -60,11 +60,12 @@ export default function load({ mtlURL, objURL }) {
       });
 
       const cube1 = new THREE.Mesh(geometry, material1);
+      debugger;
       scene.add(cube1); // or group.add(meshobj);
       objects.push(cube1);
       cube1.position.set(4, -2, 1);
       //cube1.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-      cube1.scale.set(20, 20, 20);
+      cube1.scale.set(2, 2, 2);
       //cube1.scale.set(rand(30, 6), rand(3, 6), rand(3, 6));
     }
     const pickHelper = new PickHelper(objects);
@@ -153,9 +154,9 @@ export default function load({ mtlURL, objURL }) {
     });
 
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
-    planeMesh.rotation.x = Math.PI * -0.5;
+    // planeMesh.rotation.x = Math.PI * -0.5;
 
-    //scene.add(planeMesh);
+    scene.add(planeMesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
