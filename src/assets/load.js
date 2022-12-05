@@ -10,7 +10,7 @@ import PickHelper from "./pickHelper";
 import { cameraConst } from "./constants";
 import { rand, randomColor } from "./random";
 
-export default function load({ textureURL, mtlURL, objURL }) {
+export default function load({ mtlURL, objURL }) {
   const canvas = document.querySelector("#canvas");
   const renderer = new THREE.WebGLRenderer({ canvas });
 
@@ -28,6 +28,7 @@ export default function load({ textureURL, mtlURL, objURL }) {
   const pickPosition = { x: 0, y: 0 };
 
   {
+    loadPlane();
     loadHemisphereLight();
     loadDirectionalLight();
     renderObject();
@@ -131,18 +132,16 @@ export default function load({ textureURL, mtlURL, objURL }) {
         controls.maxDistance = boxSize * 10;
         controls.target.copy(boxCenter);
         controls.update();
-
-        // load textures
-        Array.isArray(textureURL)
-          ? textureURL.forEach((url) => loadTexture(url))
-          : loadTexture(textureURL);
       });
     });
   }
-  function loadTexture(url) {
+  function loadPlane() {
     const planeSize = 4000;
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(url);
+    const texture = loader.load(
+      "https://threejsfundamentals.org/threejs/resources/images/checker.png"
+    );
+
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.NearestFilter;
@@ -154,9 +153,11 @@ export default function load({ textureURL, mtlURL, objURL }) {
       map: texture,
       side: THREE.DoubleSide,
     });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -0.5;
-    //scene.add(mesh);
+
+    const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+    planeMesh.rotation.x = Math.PI * -0.5;
+
+    scene.add(planeMesh);
   }
 
   function resizeRendererToDisplaySize(renderer) {
