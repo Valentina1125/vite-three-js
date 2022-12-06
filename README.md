@@ -9,4 +9,4 @@ Posteriormente se genera una caja en donde van a estar los objetos a visualizar 
 Los cubos que indican las partes anatómicas fueron creados uno a uno y posicionados manualmente en las zonas correspondientes. 
 Para luego evaluar si existe intersección por raycasting y cambiar el texto según el objeto que se esté intersecad.
 
-
+Para ejecutar clone el respositorio y en la terminal ponga: npm run dev
